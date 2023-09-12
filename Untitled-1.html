@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Game of Life</title>
+		<style>
+			canvas {
+				border: 1px solid black;
+			}
+		</style>
+	</head>
+	<body>
+		<canvas id="gridCanvas" width="1000" height="1000"></canvas>
+		<script>
+			let size = 1;
+			let paused = false;
+
+			function changeSize(n) {
+				size += 1;
+				if (size > 7) {
+					size = 1;
+				}
+			}
+
+			function pause() {
+				paused = !paused;
+			}
+
+			const canvas = document.getElementById("gridCanvas");
+			const ctx = canvas.getContext("2d");
+			const cellSize = 10;
+			const gridWidth = 1000;
+			const gridHeight = 1000;
+			const grid = new Array(gridWidth)
+				.fill(null)
+				.map(() => new Array(gridHeight).fill(false));
+
+			function updateGrid() {
+				if (paused) {
+					return;
+				}
+
+				const newGrid = new Array(gridWidth)
+					.fill(null)
+					.map(() => new Array(gridHeight).fill(false));
+
+				for (let x = 0; x < gridWidth; x++) {
+					for (let y = 0; y < gridHeight; y++) {
+						let liveNeighbors = 0;
+
+						for (let i = -1; i <= 1; i++) {
+							for (let j = -1; j <= 1; j++) {
+								if (i === 0 && j === 0) continue;
+
+								const neighborX = x + i;
+								const neighborY = y + j;
+
+								if (
+									neighborX >= 0 &&
+									neighborX < gridWidth &&
+									neighborY >= 0 &&
+									neighborY < gridHeight
+								) {
+									if (grid[neighborX][neighborY]) {
+										liveNeighbors++;
+									}
+								}
+							}
+						}
+
+						if (grid[x][y]) {
+							if (liveNeighbors < 2 || liveNeighbors > 3) {
+								newGrid[x][y] = false;
+							} else {
+								newGrid[x][y] = true;
+							}
+						} else if (liveNeighbors === 3) {
+							newGrid[x][y] = true;
+						} else {
+							newGrid[x][y] = false;
+						}
+					}
+				}
+
+				for (let x = 0; x < gridWidth; x++) {
+					for (let y = 0; y < gridHeight; y++) {
+						grid[x][y] = newGrid[x][y];
+					}
+				}
+			}
+
+			function drawGrid() {
+				ctx.clearRect(0, 0, canvas.width, canvas.height);
+				ctx.fillStyle = "black";
+
+				ctx.beginPath();
+
+				for (let x = 0; x < gridWidth; x++) {
+					for (let y = 0; y < gridHeight; y++) {
+						if (grid[x][y]) {
+							ctx.rect(x * cellSize, y * cellSize, cellSize, cellSize);
+						}
+					}
+				}
+
+				ctx.fill();
+			}
+
+			function mousePos(event) {
+				const canvasRect = canvas.getBoundingClientRect();
+
+				const x = Math.floor((event.clientX - canvasRect.left) / cellSize);
+				const y = Math.floor((event.clientY - canvasRect.top) / cellSize);
+
+				if (grid[x]) {
+					for (let h = 0; h < size; h++) {
+						for (let v = 0; v < size; v++) {
+							grid[Math.floor(x - h)][Math.floor(y - v)] = true;
+						}
+					}
+				}
+
+				drawGrid();
+			}
+
+			canvas.addEventListener("click", mousePos);
+
+			setInterval(() => {
+				updateGrid();
+				drawGrid();
+			}, 100);
+		</script>
+
+		<button onClick="changeSize()">change size</button>
+
+		<button onClick="pause();console.log('paused')">pause/resume</button>
+	</body>
+</html>
