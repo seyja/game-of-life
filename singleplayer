@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Game of Life</title>
+		<style>
+			canvas {
+				border: 1px solid rgb(80, 80, 80);
+				border-radius: 3px;
+				background-color: #111;
+				width: 100%;
+				max-width: 2000px;
+				height: auto;
+				
+			}
+			button {
+				border-radius: 20px ;
+				background-color: #333;
+				color: white;
+				border: none;
+				padding: 10px 20px;
+				margin: 5px;
+				cursor: pointer;
+			}
+			body {
+				background-color: rgb(30, 30, 30);
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: flex-start;
+				margin: 0;
+				padding: 20px;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div>
+			<button onClick="changeSize()">Change Size</button>
+			<input type="number" min="1" max="20" id="size" />
+			<button onClick="pause()">Pause/Resume</button>
+			<button onClick="clearGrid()">Clear</button>
+			<button onClick="randomizeGrid()">Randomize</button>
+			<input type="number" id="speedInput" min="1" max="2000" value="100" />
+			<button onClick="changeAnimationSpeed()">Change Speed</button>
+			<button onClick="changeGridSize()">Change Grid Size</button>
+		</div>
+		<canvas id="gridCanvas" width="2000" height="2000"></canvas>
+		<script>
+			let size = 1;
+			let paused = false;
+			let previewGrid = null;
+			let mouseDown = false;
+			let animationSpeed = 100;
+			let animationInterval;
+			let gridWidth = 50;
+			let gridHeight = 50;
+			let grid = createGrid(gridWidth, gridHeight);
+			let zoomLevel = 1;
+			alert("you can press and hold to see where you're gonna place the block(s). Please make sure to zoom in after changing the grid size")
+			function createGrid(width, height) {
+				return new Array(width)
+					.fill(null)
+					.map(() => new Array(height).fill(false));
+			}
+			function pause() {
+				paused = !paused;
+			}
+			function clearGrid() {
+				grid = createGrid(gridWidth, gridHeight);
+				drawGrid();
+			}
+			function randomizeGrid() {
+				grid.forEach((row) => {
+					for (let i = 0; i < row.length; i++) {
+						row[i] = Math.random() < 0.3;
+					}
+				});
+				drawGrid();
+			}
+			
+			function changeSize() {
+				const newSize=parseInt(document.getElementById("size").value)
+			if (newSize>=1 && newSize<=314){
+				size=newSize
+			}else{
+				alert("the grid size must be between 1 and 314")
+			}
+				drawGrid();
+			}
+
+			function changeAnimationSpeed() {
+				const speedInput = document.getElementById("speedInput");
+				const newSpeed = parseInt(speedInput.value);
+				if (newSpeed >= 1 && newSpeed <= 2000) {
+					animationSpeed = newSpeed;
+					clearInterval(animationInterval);
+					animationInterval = setInterval(animate, animationSpeed);
+				} else {
+					alert("Invalid speed. Please enter a value between 1 and 2000.");
+				}
+			}
+			function changeGridSize() {
+				const newSize = parseInt(prompt("Enter the new grid size:"));
+				if (newSize >= 1 && newSize >= 1) {
+					gridWidth = newSize;
+					gridHeight = newSize;
+					grid = createGrid(gridWidth, gridHeight);
+					drawGrid();
+				} else {
+					alert(
+						"Invalid grid size. Please enter values greater than or equal to 1.",
+					);
+				}
+			}
+
+			const canvas = document.getElementById("gridCanvas");
+			const ctx = canvas.getContext("2d");
+			let cellSize = calculateCellSize();
+			window.addEventListener("resize", () => {
+				cellSize = calculateCellSize();
+				drawGrid();
+			});
+			function calculateCellSize() {
+				return Math.min(
+					canvas.width / (gridWidth * zoomLevel),
+					canvas.height / (gridHeight * zoomLevel),
+				);
+			}
+			function updateGrid() {
+				if (paused) {
+					return;
+				}
+				const newGrid = createGrid(gridWidth, gridHeight);
+				for (let x = 0; x < gridWidth; x++) {
+					for (let y = 0; y < gridHeight; y++) {
+						let liveNeighbors = 0;
+						for (let i = -1; i <= 1; i++) {
+							for (let j = -1; j <= 1; j++) {
+								if (i === 0 && j === 0) continue;
+								const neighborX = (x + i + gridWidth) % gridWidth;
+								const neighborY = (y + j + gridHeight) % gridHeight;
+								if (grid[neighborX][neighborY]) {
+									liveNeighbors++;
+								}
+							}
+						}
+						if (grid[x][y]) {
+							if (liveNeighbors < 2 || liveNeighbors > 3) {
+								newGrid[x][y] = false;
+							} else {
+								newGrid[x][y] = true;
+							}
+						} else if (liveNeighbors === 3) {
+							newGrid[x][y] = true;
+						} else {
+							newGrid[x][y] = false;
+						}
+					}
+				}
+				grid = newGrid;
+			}
+			function drawGrid() {
+				ctx.clearRect(0, 0, canvas.width, canvas.height);
+				ctx.fillStyle = "green";
+				ctx.beginPath();
+				for (let x = 0; x < gridWidth; x++) {
+					for (let y = 0; y < gridHeight; y++) {
+						if (grid[x][y]) {
+							ctx.rect(
+								x * cellSize * zoomLevel,
+								y * cellSize * zoomLevel,
+								cellSize * zoomLevel,
+								cellSize * zoomLevel,
+							);
+						}
+					}
+				}
+				if (previewGrid) {
+					ctx.fillStyle = "rgba(255, 255, 255, 0.3)";
+					ctx.beginPath();
+					for (let x = 0; x < gridWidth; x++) {
+						for (let y = 0; y < gridHeight; y++) {
+							if (previewGrid[x][y]) {
+								ctx.rect(
+									x * cellSize * zoomLevel,
+									y * cellSize * zoomLevel,
+									cellSize * zoomLevel,
+									cellSize * zoomLevel,
+								);
+							}
+						}
+					}
+				}
+				ctx.fill();
+				ctx.strokeStyle = "#333";
+				ctx.lineWidth = 1;
+				ctx.beginPath();
+				for (let x = 0; x <= gridWidth; x++) {
+					ctx.moveTo(x * cellSize * zoomLevel, 0);
+					ctx.lineTo(
+						x * cellSize * zoomLevel,
+						gridHeight * cellSize * zoomLevel,
+					);
+				}
+				for (let y = 0; y <= gridHeight; y++) {
+					ctx.moveTo(0, y * cellSize * zoomLevel);
+					ctx.lineTo(
+						gridWidth * cellSize * zoomLevel,
+						y * cellSize * zoomLevel,
+					);
+				}
+				ctx.stroke();
+			}
+			function mousePos(event) {
+				const canvasRect = canvas.getBoundingClientRect();
+				const x = Math.floor(
+					(event.clientX - canvasRect.left) / (cellSize * zoomLevel),
+				);
+				const y = Math.floor(
+					(event.clientY - canvasRect.top) / (cellSize * zoomLevel),
+				);
+				drawGrid();
+				if (mouseDown) {
+					if (grid[x]) {
+						previewGrid = createGrid(gridWidth, gridHeight);
+						for (let h = 0; h < size; h++) {
+							for (let v = 0; v < size; v++) {
+								previewGrid[(x + h) % gridWidth][(y + v) % gridHeight] = true;
+							}
+						}
+					}
+				}
+			}
+			function placeBlock(event) {
+				const canvasRect = canvas.getBoundingClientRect();
+				const x = Math.floor(
+					(event.clientX - canvasRect.left) / (cellSize * zoomLevel),
+				);
+				const y = Math.floor(
+					(event.clientY - canvasRect.top) / (cellSize * zoomLevel),
+				);
+				if (grid[x]) {
+					for (let h = 0; h < size; h++) {
+						for (let v = 0; v < size; v++) {
+							grid[(x + h) % gridWidth][(y + v) % gridHeight] = true;
+						}
+					}
+				}
+				previewGrid = null;
+				drawGrid();
+			}
+
+			canvas.addEventListener("mousedown", () => {
+				mouseDown = true;
+			});
+			canvas.addEventListener("mouseup", () => {
+				mouseDown = false;
+			});
+			canvas.addEventListener("mousemove", mousePos);
+			canvas.addEventListener("click", placeBlock);
+			let animation;
+			function animate() {
+				clearInterval(animation);
+				updateGrid();
+				drawGrid();
+				animation = setInterval(animate, animationSpeed);
+			}
+			animate();
+		</script>
+	</body>
+</html>
