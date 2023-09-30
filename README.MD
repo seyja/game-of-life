@@ -9,7 +9,7 @@ to run the multiplayer, run `npm start` in /multiplayer
 
 offline (contains extra options):
 
-![offline](https://cdn.discordapp.com/attachments/849500554107420672/1157546648906502164/yGaZrkm.png?)
+![offline](https://cdn.discordapp.com/attachments/849500554107420672/1157546648906502164/yGaZrkm.png)
 
 
 multiplayer:
