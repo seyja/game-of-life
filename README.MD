@@ -15,3 +15,8 @@ offline (contains extra options):
 multiplayer:
 
 ![mp](https://cdn.discordapp.com/attachments/723242833066197083/1151875034432933998/JpR5ZMY.gif)
+
+
+rules shifted by 3 250x250
+
+![r](https://cdn.discordapp.com/attachments/723242833066197083/1157555443892244580/wpDnfHU.gif)
