@@ -64,6 +64,8 @@
 			let gridHeight = 50;
 			let grid = createGrid(gridWidth, gridHeight);
 			let zoomLevel = 1;
+			let shiftRules = 0;
+
 			alert(
 				"you can press and hold to see where you're gonna place the block(s). Please make sure to zoom in after changing the grid size",
 			);
@@ -87,10 +89,12 @@
 				});
 				drawGrid();
 			}
-
+			function shiftBy() {
+				shiftRules = parseInt(document.getElementById("shiftRules").value);
+			}
 			function changeSize() {
 				const newSize = parseInt(document.getElementById("size").value);
-				if (newSize >= 1 && newSize <= 314) {
+				if (newSize >= 1 && newSize <= 500) {
 					size = newSize;
 				} else {
 					alert("the grid size must be between 1 and 314");
@@ -155,7 +159,10 @@
 							}
 						}
 						if (grid[x][y]) {
-							if (liveNeighbors < 2 || liveNeighbors > 3) {
+							if (
+								liveNeighbors < 2 + shiftRules ||
+								liveNeighbors > 3 + shiftRules
+							) {
 								newGrid[x][y] = false;
 							} else {
 								newGrid[x][y] = true;
@@ -277,5 +284,8 @@
 			}
 			animate();
 		</script>
+		<input type="number" min="-1" max="10" id="shiftRules" />
+
+		<button onClick="shiftBy()">Shift Rules</button>
 	</body>
 </html>
