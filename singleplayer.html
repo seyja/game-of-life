@@ -12,16 +12,22 @@
 				width: 100%;
 				max-width: 2000px;
 				height: auto;
-				
+			}
+
+			input {
+				appearance: textfield;
+				height: 40%;
 			}
 			button {
-				border-radius: 20px ;
+				border-radius: 20px;
 				background-color: #333;
 				color: white;
 				border: none;
-				padding: 10px 20px;
-				margin: 5px;
+				padding: 20px 30px;
+				margin: 10px;
 				cursor: pointer;
+				size: 10px;
+				font-size: large;
 			}
 			body {
 				background-color: rgb(30, 30, 30);
@@ -58,7 +64,9 @@
 			let gridHeight = 50;
 			let grid = createGrid(gridWidth, gridHeight);
 			let zoomLevel = 1;
-			alert("you can press and hold to see where you're gonna place the block(s). Please make sure to zoom in after changing the grid size")
+			alert(
+				"you can press and hold to see where you're gonna place the block(s). Please make sure to zoom in after changing the grid size",
+			);
 			function createGrid(width, height) {
 				return new Array(width)
 					.fill(null)
@@ -79,14 +87,14 @@
 				});
 				drawGrid();
 			}
-			
+
 			function changeSize() {
-				const newSize=parseInt(document.getElementById("size").value)
-			if (newSize>=1 && newSize<=314){
-				size=newSize
-			}else{
-				alert("the grid size must be between 1 and 314")
-			}
+				const newSize = parseInt(document.getElementById("size").value);
+				if (newSize >= 1 && newSize <= 314) {
+					size = newSize;
+				} else {
+					alert("the grid size must be between 1 and 314");
+				}
 				drawGrid();
 			}
 
