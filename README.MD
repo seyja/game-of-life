@@ -19,4 +19,4 @@ multiplayer:
 
 rules shifted by 3 250x250
 
-![r](https://cdn.discordapp.com/attachments/723242833066197083/1157555443892244580/wpDnfHU.gif)
+![rh](https://cdn.discordapp.com/attachments/723242833066197083/1157555443892244580/wpDnfHU.gif)
